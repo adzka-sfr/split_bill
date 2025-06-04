@@ -91,7 +91,9 @@ while ($row = $result->fetch_assoc()) {
     ];
 }
 
-// 
+// check $transactions for debugging
+echo '<pre>';
+print_r($transactions);
 ?>
 
 <!-- Title Start -->
