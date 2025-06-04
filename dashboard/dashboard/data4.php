@@ -44,7 +44,7 @@ if ($total_participant == 0) {
 }
 
 // get list destination
-$stmt = $conn->prepare("SELECT d.id, d.c_name, m.c_name AS payer_name
+$stmt = $conn->prepare("SELECT d.id, d.c_name, d.c_payer, m.c_name AS payer_name
     FROM t_destination d
     LEFT JOIN t_member m ON d.c_payer = m.id
     WHERE d.c_trip = ?");
@@ -56,6 +56,7 @@ while ($row = $result->fetch_assoc()) {
     $destinations[] = [
         'id' => $row['id'],
         'name' => $row['c_name'],
+        'payer_id' => $row['c_payer'],
         'payer' => $row['payer_name']
     ];
 }
@@ -91,9 +92,33 @@ while ($row = $result->fetch_assoc()) {
     ];
 }
 
-// check $transactions for debugging
+// check for debugging
 echo '<pre>';
-print_r($transactions);
+print_r($destinations);
+
+foreach ($destinations as $destination) {
+    foreach ($transactions as $transaction) {
+        if ($transaction['destination'] == $destination['id']) {
+            // count how much owner in this transaction
+            $owner_count = 0;
+            foreach ($owners as $owner) {
+                if ($owner['transaction'] == $transaction['id']) {
+                    $owner_count++;
+                }
+            }
+
+            // divide the price by the number of owners
+            if ($owner_count > 0) {
+                $transaction['price_per_owner'] = $transaction['price'] / $owner_count;
+            } else {
+                $transaction['price_per_owner'] = 0; // avoid division by zero
+            }
+
+            // show for debugging
+            echo "Transaction ID: {$transaction['id']}, Price: {$transaction['price']}, Owners: $owner_count, Price per Owner: {$transaction['price_per_owner']}<br>";
+        }
+    }
+}
 ?>
 
 <!-- Title Start -->
