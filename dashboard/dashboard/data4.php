@@ -79,23 +79,22 @@ while ($row = $result->fetch_assoc()) {
 }
 
 // get all owners
-$stmt = $conn->prepare("SELECT a.id, a.c_transaction, a.c_owner, b.c_name FROM t_owner a LEFT JOIN t_member b ON a.c_owner = b.id WHERE b.c_trip = ?");
+$stmt = $conn->prepare("SELECT a.c_transaction, a.c_owner, b.c_name FROM t_owner a LEFT JOIN t_member b ON a.c_owner = b.id WHERE b.c_trip = ?");
 $stmt->bind_param("s", $trip_id);
 $stmt->execute();
 $result = $stmt->get_result();
 $owners = [];
 while ($row = $result->fetch_assoc()) {
     $owners[] = [
-        'id' => $row['id'],
+        'id' => $row['c_owner'],
         'transaction' => $row['c_transaction'],
         'owner' => htmlspecialchars($row['c_name']), // escape HTML characters
     ];
 }
 
-// check for debugging
-echo '<pre>';
-print_r($destinations);
 
+
+$rekap = [];
 foreach ($destinations as $destination) {
     foreach ($transactions as $transaction) {
         if ($transaction['destination'] == $destination['id']) {
@@ -114,11 +113,129 @@ foreach ($destinations as $destination) {
                 $transaction['price_per_owner'] = 0; // avoid division by zero
             }
 
-            // show for debugging
-            echo "Transaction ID: {$transaction['id']}, Price: {$transaction['price']}, Owners: $owner_count, Price per Owner: {$transaction['price_per_owner']}<br>";
+            // inject into rekap
+            foreach ($owners as $owner) {
+                if ($owner['transaction'] == $transaction['id']) {
+                    $rekap[] = [
+                        array(
+                            'payer' => $destination['payer'],
+                            'payer_id' => $destination['payer_id'],
+                            'detail' => $transaction['detail'],
+                            'total_price' => $transaction['price'],
+                            'price_per_owner' => $transaction['price_per_owner'],
+                            'owner' => $owner['owner'],
+                            'owner_id' => $owner['id'],
+                            'transaction_id' => $transaction['id'],
+                        )
+                    ];
+                }
+            }
         }
     }
 }
+
+// rampingkan
+$rampingkan = [];
+// sum price per owner with parameter payer_id and owner_id
+// check first if payer_id and owner_id already exists in $rampingkan, if already exists, sum the price_per_owner
+foreach ($rekap as $item) {
+    $payer_id = $item[0]['payer_id'];
+    $owner_id = $item[0]['owner_id'];
+    $price_per_owner = $item[0]['price_per_owner'];
+
+    // check if this payer_id and owner_id already exists in $rampingkan
+    $exists = false;
+    foreach ($rampingkan as &$ramp) {
+        if ($ramp['penerima_id'] == $payer_id && $ramp['pengirim_id'] == $owner_id) {
+            // sum the price_per_owner
+            $ramp['total_price'] += $price_per_owner;
+            $exists = true;
+            break;
+        }
+    }
+
+    // if not exists, add new entry
+    if (!$exists) {
+        $rampingkan[] = [
+            'penerima' => $item[0]['payer'],
+            'penerima_id' => $payer_id,
+            'pengirim' => $item[0]['owner'],
+            'pengirim_id' => $owner_id,
+            'total_price' => $price_per_owner,
+        ];
+    }
+}
+
+// Step 1: Bangun mapping user_id ke nama
+$userMap = [];
+foreach ($rampingkan as $trx) {
+    $userMap[$trx['pengirim_id']] = $trx['pengirim'];
+    $userMap[$trx['penerima_id']] = $trx['penerima'];
+}
+
+// Step 2: Bangun matriks transaksi
+$balances = [];
+
+foreach ($rampingkan as $trx) {
+    $from = $trx['pengirim_id'];
+    $to = $trx['penerima_id'];
+    $amount = $trx['total_price'];
+
+    // Lewati jika pengirim dan penerima sama
+    if ($from == $to) continue;
+
+    if (!isset($balances[$from])) $balances[$from] = [];
+    if (!isset($balances[$from][$to])) $balances[$from][$to] = 0;
+
+    $balances[$from][$to] += $amount;
+}
+
+// Step 3: Netting antar user
+$finalTransactions = [];
+
+foreach ($balances as $from => $toList) {
+    foreach ($toList as $to => $amount) {
+        $reverseAmount = $balances[$to][$from] ?? 0;
+
+        if ($reverseAmount > 0) {
+            if ($amount > $reverseAmount) {
+                $netAmount = $amount - $reverseAmount;
+                $finalTransactions[] = [
+                    'from' => $from,
+                    'to' => $to,
+                    'amount' => $netAmount
+                ];
+            } elseif ($reverseAmount > $amount) {
+                $netAmount = $reverseAmount - $amount;
+                $finalTransactions[] = [
+                    'from' => $to,
+                    'to' => $from,
+                    'amount' => $netAmount
+                ];
+            }
+            // Tandai kedua arah sebagai sudah diproses
+            $balances[$from][$to] = 0;
+            $balances[$to][$from] = 0;
+        } elseif ($amount > 0) {
+            $finalTransactions[] = [
+                'from' => $from,
+                'to' => $to,
+                'amount' => $amount
+            ];
+        }
+    }
+}
+
+// Step 4: Tampilkan hasil akhir
+foreach ($finalTransactions as $trx) {
+    $fromName = $userMap[$trx['from']] ?? $trx['from'];
+    $toName = $userMap[$trx['to']] ?? $trx['to'];
+    echo "$fromName harus membayar ke $toName sebesar {$trx['amount']}<br>";
+}
+
+// check for debugging
+// echo '<pre>';
+// print_r($rampingkan);
 ?>
 
 <!-- Title Start -->
