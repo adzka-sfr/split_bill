@@ -11,10 +11,19 @@ $day2 = date('D');
 
 session_start();
 
-$host = 'localhost';
-$user = 'root';
-$password = '';
-$database = 'split_bill';
+if ($_SERVER['HTTP_HOST'] === 'localhost' || $_SERVER['HTTP_HOST'] === '127.0.0.1') {
+    // local
+    $host = 'localhost';
+    $user = 'root';
+    $password = '';
+    $database = 'split_bill';
+} else {
+    // hosting
+    $host = 'localhost'; // usually still localhost on most shared hosting
+    $user = 'u266480338_split_bill';
+    $database = 'u266480338_split_bill';
+    $password = 'Ngapainribetjir!123';
+}
 
 $conn = new mysqli($host, $user, $password, $database);
 
@@ -30,20 +39,25 @@ if (isset($_SESSION['session_id'])) {
 }
 
 
-// base_url
-// $_SESSION['base_url'] = "http://10.105.48.12/hikari-lte";
-$_SESSION['base_url'] = "//localhost/split_bill";
-// $_SESSION['base_url'] = "//localhost:8080/hikari-lte";
-// $_SESSION['base_url'] = "//WINDB-R550/hikari-lte";
-function base_url($url = null)
+// base url
+function base_url($path = '')
 {
-    // $base_url = "http://10.105.52.131/hikari-lte";
-    // $base_url = "http://WINDB-R550/hikari-lte";
-    $base_url = "//localhost/split_bill";
-    // $base_url = "//localhost:8080/hikari-lte";
-    if ($url != null) {
-        return $base_url . "/" . $url;
+    $is_https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+    $protocol = $is_https ? "https" : "http";
+    // Use '/split_bill' for local (http), use '' for hosting (https)
+    $base = $is_https ? $_SERVER['HTTP_HOST'] : $_SERVER['HTTP_HOST'] . '/split_bill';
+    return $protocol . "://" . $base . "/" . ltrim($path, '/');
+}
+
+// For including PHP files, use the server's document root
+function base_path($path = null)
+{
+    $base_path = $_SERVER['DOCUMENT_ROOT'] . '/split_bill/'; // local
+    // $base_path = $_SERVER['DOCUMENT_ROOT']; // hosting
+    if ($path != null) {
+        return $base_path . '/' . trim($path, '/');
     } else {
-        return $base_url;
+        return $base_path;
     }
 }
+// tes git lewat git dekstop

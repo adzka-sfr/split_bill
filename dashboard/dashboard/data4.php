@@ -166,6 +166,10 @@ foreach ($rekap as $item) {
     }
 }
 
+// debug arrray rampingkan
+// echo '<pre>';
+// print_r($rampingkan);
+
 // Step 1: Bangun mapping user_id ke nama
 $userMap = [];
 foreach ($rampingkan as $trx) {
@@ -192,9 +196,15 @@ foreach ($rampingkan as $trx) {
 
 // Step 3: Netting antar user
 $finalTransactions = [];
+$processedPairs = [];
 
 foreach ($balances as $from => $toList) {
     foreach ($toList as $to => $amount) {
+        // Lewati jika sudah diproses sebelumnya (dalam arah manapun)
+        if (isset($processedPairs["$from-$to"]) || isset($processedPairs["$to-$from"])) {
+            continue;
+        }
+
         $reverseAmount = $balances[$to][$from] ?? 0;
 
         if ($reverseAmount > 0) {
@@ -214,24 +224,27 @@ foreach ($balances as $from => $toList) {
                 ];
             }
             // Tandai kedua arah sebagai sudah diproses
-            $balances[$from][$to] = 0;
-            $balances[$to][$from] = 0;
+            $processedPairs["$from-$to"] = true;
+            $processedPairs["$to-$from"] = true;
         } elseif ($amount > 0) {
             $finalTransactions[] = [
                 'from' => $from,
                 'to' => $to,
                 'amount' => $amount
             ];
+            $processedPairs["$from-$to"] = true;
         }
     }
 }
 
+
+
 // Step 4: Tampilkan hasil akhir
-foreach ($finalTransactions as $trx) {
-    $fromName = $userMap[$trx['from']] ?? $trx['from'];
-    $toName = $userMap[$trx['to']] ?? $trx['to'];
-    echo "$fromName harus membayar ke $toName sebesar {$trx['amount']}<br>";
-}
+// foreach ($finalTransactions as $trx) {
+//     $fromName = $userMap[$trx['from']] ?? $trx['from'];
+//     $toName = $userMap[$trx['to']] ?? $trx['to'];
+//     echo "$fromName harus membayar ke $toName sebesar {$trx['amount']}<br>";
+// }
 
 // check for debugging
 // echo '<pre>';
@@ -329,11 +342,13 @@ foreach ($finalTransactions as $trx) {
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>John Doe</td>
-                    <td>Jane Smith</td>
-                    <td>1000</td>
-                </tr>
+                <?php foreach ($finalTransactions as $transaction): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($userMap[$transaction['from']]) ?></td>
+                        <td><?= htmlspecialchars($userMap[$transaction['to']]) ?></td>
+                        <td style="text-align: right;"><?= number_format($transaction['amount'], 0) ?></td>
+                    </tr>
+                <?php endforeach; ?>
             </tbody>
         </table>
     </div>
