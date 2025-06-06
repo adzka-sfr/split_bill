@@ -4,7 +4,7 @@ include "../config.php";
 
 // untuk pengecekan sesi
 if (!isset($_SESSION['sb_id'])) {
-    echo "<script>window.location='" . base_path('auth/') . "';</script>";
+    echo "<script>window.location='" . base_url('auth/') . "';</script>";
 }
 ?>
 
