@@ -12,8 +12,8 @@ if (!isset($_SESSION['sb_id'])) {
     <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4 rounded shadow-sm">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
-                <!-- <i class="fas fa-utensils"></i> Split Bill -->
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Yamaha_logo.svg/1024px-Yamaha_logo.svg.png" alt="Logo" class="d-inline-block align-text-top" style="height:40px; width:auto;">
+                <i class="fas fa-money-bill-wave"></i> Split Bill
+                <!-- <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Yamaha_logo.svg/1024px-Yamaha_logo.svg.png" alt="Logo" class="d-inline-block align-text-top" style="height:40px; width:auto;"> -->
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
