@@ -80,9 +80,15 @@ if (isset($_SESSION['sb_id'])) {
                                 Swal.fire({
                                     icon: 'success',
                                     title: 'Success',
-                                    text: 'Registration successful! Please login.'
-                                }).then(() => {
-                                    $('#authTab a[href="#login"]').tab('show');
+                                    text: 'Registration successful! Logging you in...'
+                                }).then(function() {
+                                    // Fill login fields
+                                    $('#loginEmail').val($('#registerName').val());
+                                    $('#loginPassword').val($('#registerPassword').val());
+                                    // Switch to login tab
+                                    $('#login-tab').click();
+                                    // Trigger login
+                                    $('#btn-login').focus().click();
                                 });
                             } else {
                                 Swal.fire({
@@ -96,6 +102,31 @@ if (isset($_SESSION['sb_id'])) {
                 }
 
             })
+
+            // enter logic - login
+            // Move focus from email to password on Enter, and from password to button
+            $('#loginEmail').keypress(function(e) {
+                if (e.which === 13) { // Enter key pressed
+                    $('#loginPassword').focus();
+                }
+            });
+            $('#loginPassword').keypress(function(e) {
+                if (e.which === 13) { // Enter key pressed
+                    $('#btn-login').focus().click();
+                }
+            });
+
+            // enter logic - register
+            $('#registerName').keypress(function(e) {
+                if (e.which === 13) { // Enter key pressed
+                    $('#registerPassword').focus();
+                }
+            });
+            $('#registerPassword').keypress(function(e) {
+                if (e.which === 13) { // Enter key pressed
+                    $('#btn-register').focus().click();
+                }
+            });
 
             $('#btn-login').click(function() {
                 var username = $('#loginEmail').val();
