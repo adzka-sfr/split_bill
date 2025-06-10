@@ -283,7 +283,9 @@ foreach ($balances as $from => $toList) {
             <tbody>
                 <?php foreach ($participants as $participant): ?>
                     <tr>
-                        <td style="width: 5%; text-align: center;" onclick="deleteParticipant('<?= $participant['id'] ?>')"><i class="fa-solid fa-xmark"></i></td>
+                        <td class="text-danger" style="width: 5%; text-align: center; cursor: pointer;" onclick="deleteParticipant('<?= $participant['id'] ?>')">
+                            <i class="fa-solid fa-trash"></i>
+                        </td>
                         <td><?= htmlspecialchars($participant['name']) ?></td>
                         <td style="text-align: right;">
                             <?php
@@ -322,7 +324,7 @@ foreach ($balances as $from => $toList) {
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="3" style="text-align: center;" onclick="addParticipant('<?= $trip_id ?>')"><i class="fa-solid fa-plus"></i></td>
+                    <td colspan="3" style="text-align: center; font-weight: bold; font-size:1.5em;" onclick="addParticipant('<?= $trip_id ?>')"><i class="fa-solid fa-plus"></i></td>
                 </tr>
             </tfoot>
         </table>
@@ -362,11 +364,13 @@ foreach ($balances as $from => $toList) {
             <table class="table table-bordered" style="font-size: 10px;">
                 <thead>
                     <tr>
-                        <th colspan="3">Destination : <?= htmlspecialchars($destination['name']) ?></th>
-                        <th style="text-align: center;" onclick="deleteDestination('<?= $destination['id'] ?>')"><i class="fa-solid fa-xmark"></i></th>
+                        <th colspan="4" style="font-size: 1.5em;">Destination : <?= htmlspecialchars($destination['name']) ?></th>
+                        <th class="text-danger" style="text-align: center; cursor: pointer;" onclick="deleteDestination('<?= $destination['id'] ?>')">
+                            <i class="fa-solid fa-trash"></i>
+                        </th>
                     </tr>
                     <tr>
-                        <th colspan="2">Payer : <?= htmlspecialchars($destination['payer']) ?></th>
+                        <th colspan="3">Payer : <?= htmlspecialchars($destination['payer']) ?></th>
                         <th colspan="2" style="text-align: right;">
                             <?php
                             // Calculate total price for this destination
@@ -381,16 +385,19 @@ foreach ($balances as $from => $toList) {
                         </th>
                     </tr>
                     <tr>
-                        <th style="width: 60%;">Detail</th>
+                        <th colspan="2" style="width: 60%; text-align: center;">Detail</th>
                         <th style="width: 20%; text-align: center;">Owner</th>
-                        <th style="width: 10%; text-align: right;">Price</th>
-                        <th style="width: 10%; text-align: right;">@</th>
+                        <th style="width: 10%; text-align: center;">Price</th>
+                        <th style="width: 10%; text-align: center;">@</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($transactions as $transaction): ?>
                         <?php if ($transaction['destination'] == $destination['id']): ?>
                             <tr>
+                                <td class="text-success" style="width: 5%; text-align: center; cursor: pointer;" onclick="editTransaction('<?= $transaction['id'] ?>','<?= htmlspecialchars($transaction['detail']) ?>', '<?= $transaction['price'] ?>')">
+                                    <i class="fa-solid fa-pencil"></i>
+                                </td>
                                 <td><?= htmlspecialchars($transaction['detail']) ?></td>
                                 <td style="width: 5%; text-align: center;">
                                     <?php
@@ -404,6 +411,7 @@ foreach ($balances as $from => $toList) {
                                     } else {
                                         echo '<span class="text-muted">-</span>';
                                     }
+
                                     ?>
                                 </td>
                                 <td style="text-align: right;"><?= number_format($transaction['price'], 0) ?></td>
@@ -428,7 +436,7 @@ foreach ($balances as $from => $toList) {
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="4" style="text-align: center;" onclick="addTransaction('<?= $destination['id'] ?>', '<?= $destination['name'] ?>', '<?= $destination['payer'] ?>')"><i class="fa-solid fa-plus"></i></td>
+                        <td colspan="5" style="text-align: center; font-weight:bold; font-size:1.5em" onclick="addTransaction('<?= $destination['id'] ?>', '<?= $destination['name'] ?>', '<?= $destination['payer'] ?>')"><i class="fa-solid fa-plus"></i></td>
                     </tr>
                 </tfoot>
             </table>

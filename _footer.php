@@ -13,6 +13,11 @@
         $('.owner-select').select2({
             dropdownParent: $('#modal-add-transaction')
         });
+
+        $('.add-owner').select2({
+            dropdownParent: $('#modal-edit-transaction')
+        });
+
     });
 </script>
 

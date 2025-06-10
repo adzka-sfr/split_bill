@@ -133,7 +133,7 @@
                     <div class="col-12">
                         <div class="form-group">
                             <label for="item-price">Price</label>
-                            <input class="form-control" type="text" name="item-price" id="item-price">
+                            <input class="form-control" type="number" name="item-price" id="item-price" min="0" step="any" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
                             <span id="error-item-price" style="color: #DC3545; display: none;"><i class="fa-solid fa-circle-info"></i> Silahkan memasukkan harga</span>
                         </div>
                     </div>
@@ -142,13 +142,17 @@
                     <div class="col-12 mb-2">
                         <label>Owner Type</label><br>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="owner-type" id="owner-type-all" value="all" checked>
+                            <input class="form-check-input" type="radio" name="owner-type" id="owner-type-all" value="all">
                             <label class="form-check-label" for="owner-type-all">All</label>
                         </div>
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" type="radio" name="owner-type" id="owner-type-not-all" value="not-all">
                             <label class="form-check-label" for="owner-type-not-all">Not All</label>
                         </div>
+                        <br>
+                        <span id="error-owner-type" style="color: #DC3545; display: none;">
+                            <i class="fa-solid fa-circle-info"></i> Silahkan memilih owner type
+                        </span>
                     </div>
                 </div>
                 <div class="row" id="owner-select-row" style="display: none;">
@@ -196,6 +200,62 @@
     </div>
 </div>
 <!-- Modal End -->
+
+<!-- modal to edit transaction -->
+<!-- modal to edit transaction -->
+<div class="modal fade" id="modal-edit-transaction" aria-labelledby="modalEditTransactionLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title fs-5" id="modalEditTransactionLabel">Edit Transaction</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="item-name-edit">Item</label>
+                            <input class="form-control" type="text" name="item-name-edit" id="item-name-edit">
+                            <span id="error-item-name-edit" style="color: #DC3545; display: none;">
+                                <i class="fa-solid fa-circle-info"></i> Silahkan memasukkan nama item
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="item-price-edit">Price</label>
+                            <input class="form-control" type="number" name="item-price-edit" id="item-price-edit" min="0" step="any" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
+                            <span id="error-item-price-edit" style="color: #DC3545; display: none;">
+                                <i class="fa-solid fa-circle-info"></i> Silahkan memasukkan harga
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="payer-name-edit">Add Owner</label>
+                            <select class="form-control add-owner" name="owner-name-edit[]" multiple='multiple' id="owner-name-edit" style="width: 100%;"></select>
+                            <span id="error-payer-name-edit" style="color: #DC3545; display: none;">
+                                <i class="fa-solid fa-circle-info"></i> Silahkan memilih payer
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-12 mt-2" id="list-owner-now"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btn-update-transaction">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
     $(document).ready(function() {
@@ -491,6 +551,15 @@
                 $('#error-item-price').hide();
             }
 
+            // check radio buttons for owner type
+            const ownerTypeChecked = $('input[name="owner-type"]:checked').length;
+            if (ownerTypeChecked === 0) {
+                $('#error-owner-type').show();
+                return;
+            } else {
+                $('#error-owner-type').hide();
+            }
+
             // Validate owner type
             const ownerType = $('input[name="owner-type"]:checked').val();
             let itemOwners = [];
@@ -515,16 +584,6 @@
                 });
                 return;
             }
-
-            // check all inputs
-            console.log({
-                destination_id: destinationId,
-                item_name: itemName,
-                item_price: itemPrice,
-                owner_type: ownerType,
-                item_owners: itemOwners,
-                trip_id: tripId
-            });
 
 
             // send to data9.php using ajax
@@ -593,7 +652,6 @@
                 }
             });
         });
-
 
         // Owner type radio button logic
         $('input[name="owner-type"]').change(function() {
@@ -874,6 +932,63 @@
                         console.error('Error deleting destination:', error);
                     }
                 });
+            }
+        });
+    }
+
+    // function to edit transaction
+    function editTransaction(transaction_id, item_name, item_price) {
+        // Check if transaction_id is valid
+        if (transaction_id === '') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Invalid transaction ID.',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+        // fill transaction details
+        $('#item-name-edit').val(item_name);
+        $('#item-price-edit').val(item_price);
+
+        // Get transaction details
+        getTransactionDetails(transaction_id);
+
+        // get owner names
+        getPayerNames('owner-name-edit');
+
+        // Set transaction id to hidden input
+        $('#transaction-id').val(transaction_id);
+        // Show modal
+        $('#modal-edit-transaction').modal('show');
+    }
+
+    // function to get list owner
+    function getTransactionDetails(transaction_id) {
+        // Check if transaction_id is valid
+        if (transaction_id === '') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Invalid transaction ID.',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        // Send AJAX request to get transaction details
+        $.ajax({
+            url: 'dashboard/data10.php',
+            type: 'POST',
+            data: {
+                transaction_id: transaction_id
+            },
+            success: function(response) {
+                $('#list-owner-now').html(response);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error fetching transaction details:', error);
             }
         });
     }
