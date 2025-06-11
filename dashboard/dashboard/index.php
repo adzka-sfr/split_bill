@@ -202,13 +202,13 @@
 <!-- Modal End -->
 
 <!-- modal to edit transaction -->
-<!-- modal to edit transaction -->
 <div class="modal fade" id="modal-edit-transaction" aria-labelledby="modalEditTransactionLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h6 class="modal-title fs-5" id="modalEditTransactionLabel">Edit Transaction</h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <input type="hidden" name="transaction-id-edit" id="transaction-id-edit">
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -238,9 +238,6 @@
                         <div class="form-group">
                             <label for="payer-name-edit">Add Owner</label>
                             <select class="form-control add-owner" name="owner-name-edit[]" multiple='multiple' id="owner-name-edit" style="width: 100%;"></select>
-                            <span id="error-payer-name-edit" style="color: #DC3545; display: none;">
-                                <i class="fa-solid fa-circle-info"></i> Silahkan memilih payer
-                            </span>
                         </div>
                     </div>
                 </div>
@@ -250,6 +247,7 @@
                 </div>
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="btn-delete-transaction">Delete</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" id="btn-update-transaction">Update</button>
             </div>
@@ -653,6 +651,66 @@
             });
         });
 
+        // Delete transaction button click event
+        $('#btn-delete-transaction').click(function() {
+            // Get transaction ID
+            var transactionId = $('#transaction-id-edit').val().trim();
+            if (transactionId === '') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Invalid transaction ID.',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+
+            // Confirm deletion
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Send AJAX request to delete transaction
+                    $.ajax({
+                        url: 'dashboard/data12.php',
+                        type: 'POST',
+                        data: {
+                            transaction_id: transactionId
+                        },
+                        success: function(response) {
+                            var response = JSON.parse(response);
+                            if (response.status === 'success') {
+                                // Reload trip info
+                                getTripInfo();
+                                // Toggle the visibility of the edit transaction modal after OK is clicked
+                                $('#modal-edit-transaction').modal('toggle');
+                                Swal.fire(
+                                    'Deleted!',
+                                    response.message,
+                                    'success'
+                                );
+                            } else {
+                                Swal.fire(
+                                    'Error!',
+                                    response.message,
+                                    'error'
+                                );
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error deleting transaction:', error);
+                        }
+                    });
+                }
+            });
+        });
+
         // Owner type radio button logic
         $('input[name="owner-type"]').change(function() {
             if ($('#owner-type-not-all').is(':checked')) {
@@ -664,6 +722,7 @@
                 $('#item-owner').empty();
             }
         });
+
         // Ensure correct state on modal open
         $('#modal-add-transaction').on('shown.bs.modal', function() {
             if ($('#owner-type-not-all').is(':checked')) {
@@ -959,7 +1018,7 @@
         getPayerNames('owner-name-edit');
 
         // Set transaction id to hidden input
-        $('#transaction-id').val(transaction_id);
+        $('#transaction-id-edit').val(transaction_id);
         // Show modal
         $('#modal-edit-transaction').modal('show');
     }
@@ -989,6 +1048,66 @@
             },
             error: function(xhr, status, error) {
                 console.error('Error fetching transaction details:', error);
+            }
+        });
+    }
+
+    // function to delete owner
+    function deleteOwner(owner_id, transaction_id) {
+        // Check if owner_id is valid
+        if (owner_id === '') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Invalid owner ID.',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        // Confirm deletion
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Send AJAX request to delete owner
+                $.ajax({
+                    url: 'dashboard/data11.php',
+                    type: 'POST',
+                    data: {
+                        owner_id: owner_id,
+                    },
+                    success: function(response) {
+                        var response = JSON.parse(response);
+                        if (response.status === 'success') {
+                            // Reload transaction details
+                            getTransactionDetails(transaction_id);
+                            // Reload trip info
+                            getTripInfo();
+
+                            Swal.fire(
+                                'Deleted!',
+                                response.message,
+                                'success'
+                            )
+                        } else {
+                            Swal.fire(
+                                'Error!',
+                                response.message,
+                                'error'
+                            );
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error deleting owner:', error);
+                    }
+                });
             }
         });
     }
