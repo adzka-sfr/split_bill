@@ -153,7 +153,7 @@ if (isset($_SESSION['sb_id'])) {
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Error',
-                                    text: response
+                                    text: 'Invalid username or password!'
                                 });
                             }
                         }
