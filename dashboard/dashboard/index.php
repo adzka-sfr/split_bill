@@ -689,7 +689,7 @@
                                 // Reload trip info
                                 getTripInfo();
                                 // Toggle the visibility of the edit transaction modal after OK is clicked
-                                $('#modal-edit-transaction').modal('toggle');
+                                $('#modal-edit-transaction').modal('hide');
                                 Swal.fire(
                                     'Deleted!',
                                     response.message,
@@ -710,6 +710,77 @@
                 }
             });
         });
+
+        // Update transaction button click event
+        $('#btn-update-transaction').click(function() {
+            // Get transaction ID
+            var transactionId = $('#transaction-id-edit').val().trim();
+            var itemName = $('#item-name-edit').val();
+            var itemPrice = $('#item-price-edit').val();
+
+            // Validate owner type
+            var itemOwners = [];
+            itemOwners = $('#owner-name-edit').val();
+
+            if (transactionId === '') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Invalid transaction ID.',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+
+            // Confirm update
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "The transaction will be updated!",
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, update it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Send AJAX request to delete transaction
+                    $.ajax({
+                        url: 'dashboard/data13.php',
+                        type: 'POST',
+                        data: {
+                            transaction_id: transactionId,
+                            item_name: itemName,
+                            item_price: itemPrice,
+                            item_owners: itemOwners
+                        },
+                        success: function(response) {
+                            var response = JSON.parse(response);
+                            if (response.status === 'success') {
+                                // Reload trip info
+                                getTripInfo();
+                                // Toggle the visibility of the edit transaction modal after OK is clicked
+                                $('#modal-edit-transaction').modal('hide');
+                                Swal.fire(
+                                    'Updated!',
+                                    response.message,
+                                    'success'
+                                );
+                            } else {
+                                Swal.fire(
+                                    'Error!',
+                                    response.message,
+                                    'error'
+                                );
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error update transaction:', error);
+                        }
+                    });
+                }
+            });
+
+        })
 
         // Owner type radio button logic
         $('input[name="owner-type"]').change(function() {
