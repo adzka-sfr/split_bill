@@ -25,10 +25,7 @@ if (!isset($_SESSION['sb_id'])) {
                         <a class="nav-link active" aria-current="page" href="main.php?page=dashboard"><i class="fas fa-home"></i> Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="main.php?page=group"><i class="fas fa-users"></i> Groups</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="main.php?page=bill"><i class="fas fa-receipt"></i> Bills</a>
+                        <a class="nav-link" href="main.php?page=history"><i class="fas fa-receipt"></i> History</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="main.php?page=profile"><i class="fas fa-user"></i> Profile</a>
