@@ -159,7 +159,7 @@ if (isset($_SESSION['sb_id'])) {
                         }
                     });
                 }
-            });
+            }); 
         });
     </script>
 
