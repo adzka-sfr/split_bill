@@ -256,6 +256,16 @@ foreach ($balances as $from => $toList) {
     <div class="col-12">
         <table style="font-size: 10px;">
             <tr>
+                <th>Trip ID</th>
+                <td>:</td>
+                <td>
+                    <button class="btn btn-primary btn-sm" onclick="copyToClipboard('<?= htmlspecialchars($trip_id) ?>')" title="Copy Trip ID">
+                        <i class="fa-solid fa-copy"></i>
+                    </button>
+                    <?= htmlspecialchars($trip_id) ?>
+                </td>
+            </tr>
+            <tr>
                 <th>Trip</th>
                 <td>:</td>
                 <td><?= $trip_name ?></td>
