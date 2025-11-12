@@ -13,7 +13,7 @@ $sb_id = $_SESSION['sb_id'];
 
 // get all trips
 $data_trips = [];
-$stmt = $conn->prepare("SELECT id, c_name, c_datetime FROM t_trip WHERE c_user = ?");
+$stmt = $conn->prepare("SELECT id, c_name, c_datetime FROM t_trip WHERE c_user = ? ORDER BY c_datetime DESC");
 $stmt->bind_param("i", $sb_id);
 $stmt->execute();
 $result = $stmt->get_result();

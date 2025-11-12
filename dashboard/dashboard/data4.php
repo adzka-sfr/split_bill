@@ -253,26 +253,32 @@ foreach ($balances as $from => $toList) {
 <!-- Title Start -->
 <div class="row">
     <div class="col-12">
-        <table style="font-size: 10px;">
+        <table style="font-size: 10px; width: 100%;">
             <tr>
                 <th>Trip ID</th>
                 <td>:</td>
                 <td>
-                    <button class="btn btn-primary btn-sm" onclick="copyToClipboard('<?= htmlspecialchars($trip_id) ?>')" title="Copy Trip ID">
-                        <i class="fa-solid fa-copy"></i>
-                    </button>
+
                     <?= htmlspecialchars($trip_id) ?>
+                </td>
+                <td style="text-align: right;">
+                    <button class="btn btn-primary btn-sm" style="font-size: 6px;" onclick="copyToClipboard('<?= htmlspecialchars($trip_id) ?>')" title="Copy Trip ID">
+                        <!-- <i class="fa-solid fa-copy"></i> -->
+                        Salin Trip ID
+                    </button>
                 </td>
             </tr>
             <tr>
                 <th>Trip</th>
                 <td>:</td>
                 <td><?= $trip_name ?></td>
+                <td></td>
             </tr>
             <tr>
                 <th>Partisipan</th>
                 <td>:</td>
                 <td><?= $total_participant ?></td>
+                <td></td>
             </tr>
         </table>
     </div>
