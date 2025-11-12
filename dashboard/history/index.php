@@ -90,4 +90,36 @@
             }
         });
     }
+
+    // function to copy trip id to clipboard
+    function copyToClipboard(text) {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(text).then(function() {
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'success',
+                    title: 'Copied to clipboard!',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            });
+        } else {
+            // fallback for older browsers
+            var tempInput = document.createElement('input');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'Copied to clipboard!',
+                showConfirmButton: false,
+                timer: 1500
+            });
+        }
+    }
 </script>

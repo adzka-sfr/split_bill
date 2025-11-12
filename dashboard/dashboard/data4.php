@@ -23,7 +23,6 @@ if ($result->num_rows > 0) {
     $trip_name = $trip['c_name'];
 }
 
-
 // get list of participants
 $stmt = $conn->prepare("SELECT id, c_name FROM t_member WHERE c_trip = ?");
 $stmt->bind_param("s", $trip_id);

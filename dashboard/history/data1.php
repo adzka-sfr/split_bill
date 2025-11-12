@@ -252,6 +252,29 @@ while ($row = $result->fetch_assoc()) {
             </h2>
             <div id="flush-collapseOne<?= $no ?>" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                 <div class="accordion-body" style="padding-left: 0px; padding-right: 0px; ">
+                    <!-- kode trip -->
+                    <!-- <button class="btn btn-primary btn-sm" onclick="copyToClipboard('<?= htmlspecialchars($trip_id) ?>')" title="Copy Trip ID">
+                        <i class="fa-solid fa-copy"></i>
+                    </button> -->
+                    <!-- kode trip -->
+                    <div class="row">
+                        <div class="col-12">
+                            <table class="table table-bordered" style="width:100%; font-size:10px;">
+                                <thead>
+                                    <tr>
+                                        <th>Trip ID</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><?= htmlspecialchars($trip_id) ?></td>
+                                        <td><button class="btn btn-sm btn-primary" onclick="copyToClipboard('<?= htmlspecialchars($trip_id) ?>')" style="padding-top: 1px; padding-bottom: 1px; font-size: 10px;">Salin</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                     <!-- pembayaran -->
                     <div class="row">
                         <div class="col-12">
